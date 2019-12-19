@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.Scanner;
+import java.util.concurrent.Flow;
 
 public class CrappyJavaNscripter extends JFrame {
 
@@ -24,8 +25,7 @@ public class CrappyJavaNscripter extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         MyJPanel myJPanel = new MyJPanel();
         Container c = getContentPane();
-        c.setLayout(null);
-        c.add(myJPanel, 1, 0);
+        c.add(myJPanel);
         myJPanel.setBounds(0, 0, screen_width, screen_height);
         setVisible(true);
         setResizable(false);
@@ -72,7 +72,7 @@ public class CrappyJavaNscripter extends JFrame {
         OggClip voice = new OggClip("");
         OggClip titleBgm = new OggClip("");
 
-        File file = new File("res/1.txt");
+        File file = new File("res/0.txt");
         File save = new File("res/save.s");
         Scanner sc = new Scanner(file);
 
@@ -104,7 +104,7 @@ public class CrappyJavaNscripter extends JFrame {
             if(readG.hasNextLine()){
                 loadGameProgress = Integer.parseInt(readG.nextLine());
                 JOptionPane.showMessageDialog(null, "Game loaded successfully from \"save.s\". Press any key to continue playing. ");
-                File file = new File("res/1.txt");
+                File file = new File("res/0.txt");
                 Scanner sc1 = new Scanner(file);
                 for(int i = 0; i <= loadGameProgress; i++){
                     read = sc1.nextLine();
@@ -414,14 +414,6 @@ public class CrappyJavaNscripter extends JFrame {
                     }
                 }
 
-                if(read.contains("bgm ")) {
-                    BGM = read.substring(read.indexOf("\"") + 1, read.lastIndexOf("\"")).toLowerCase();
-                    bgmChanged = 1;
-                }
-                if (read.contains("bgmstop")){
-                    bgmStop = 1;
-                }
-
                 //Read options and select an option
                 if(read.contains("select ")){
                     stc[0] = read.substring(read.indexOf(" \"") + 2, read.indexOf("\",*"));
@@ -453,6 +445,14 @@ public class CrappyJavaNscripter extends JFrame {
                     System.exit(0);
                 }
 
+                if(read.contains("bgm ")) {
+                    BGM = read.substring(read.indexOf("\"") + 1, read.lastIndexOf("\"")).toLowerCase();
+                    bgmChanged = 1;
+                }
+                if (read.contains("bgmstop")){
+                    bgmStop = 1;
+                }
+
                 if (clicked == 1 && start_game == 1 && ctrled != 1){
                     //Play & stop BGM
                     try {
@@ -461,8 +461,12 @@ public class CrappyJavaNscripter extends JFrame {
                             bgmStop = 0;
                         }
                         if(read.contains("bgm ") || bgmChanged == 1) {
-                            bgm = new OggClip(BGM);
-                            bgm.loop();
+                            File temp = new File("res/" + BGM);
+                            if(temp.exists()) {
+                                bgm.stop();
+                                bgm = new OggClip(BGM);
+                                bgm.loop();
+                            }
                             bgmChanged = 0;
                         }
                     } catch (IOException ex) {
@@ -471,7 +475,7 @@ public class CrappyJavaNscripter extends JFrame {
 
                     //Play & stop character voice
                     if(read.contains("dwave 1")){
-                        if(!voice.isPaused())
+                        if(!voice.stopped())
                             voice.stop();
                         try {
                             voice = new OggClip((read.substring(read.indexOf("\"") + 1, read.lastIndexOf("\""))).toLowerCase());
@@ -505,7 +509,7 @@ public class CrappyJavaNscripter extends JFrame {
         public void mouseDragged (MouseEvent me){}
         public void keyPressed (KeyEvent e){
             int key = e.getKeyCode();
-            if(key == KeyEvent.VK_CONTROL){
+            if(key == KeyEvent.VK_CONTROL && start_game == 1){
                 System.out.println("Ctrl pressed. ");
                 ctrled = 1;
             }
