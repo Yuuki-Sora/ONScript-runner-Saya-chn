@@ -7,7 +7,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.Scanner;
-import java.util.concurrent.Flow;
 
 public class CrappyJavaNscripter extends JFrame {
 
@@ -16,19 +15,17 @@ public class CrappyJavaNscripter extends JFrame {
     private final int offset_x = 10;
     private final int offset_y = 117;
 
-    private JButton saveButton = new JButton("SAVE");
-    private JButton loadButton = new JButton("LOAD");
-
     public CrappyJavaNscripter() throws Exception {
-        setSize(screen_width + 14, screen_height + 37);
-        setTitle("Crappy Java Nscripter by Yuuki");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        JFrame frame = new JFrame();
+        frame.setSize(screen_width + 14, screen_height + 37);
+        frame.setTitle("Crappy Java Nscripter by Yuuki");
+        frame.setDefaultCloseOperation(frame.EXIT_ON_CLOSE);
         MyJPanel myJPanel = new MyJPanel();
-        Container c = getContentPane();
-        c.add(myJPanel);
+        myJPanel.repaint();
+        frame.getContentPane().add(myJPanel);
         myJPanel.setBounds(0, 0, screen_width, screen_height);
-        setVisible(true);
-        setResizable(false);
+        frame.setVisible(true);
+        frame.setResizable(false);
     }
 
     public static void main(String[] args) throws Exception {
@@ -180,6 +177,9 @@ public class CrappyJavaNscripter extends JFrame {
         }
 
         MyJPanel() throws Exception{
+            JButton saveButton = new JButton("SAVE");
+            JButton loadButton = new JButton("LOAD");
+            setLayout(new FlowLayout(FlowLayout.RIGHT));
             save.createNewFile();
             saveButton.setToolTipText("Do you want to save your game or not? OwO");
             loadButton.setToolTipText("Do you want to load your game or not? OwO");
@@ -190,10 +190,12 @@ public class CrappyJavaNscripter extends JFrame {
             saveButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    try {
-                        saveGame();
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
+                    if(start_game == 1) {
+                        try {
+                            saveGame();
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
                     }
                 }
             });
@@ -456,7 +458,7 @@ public class CrappyJavaNscripter extends JFrame {
                 if (clicked == 1 && start_game == 1 && ctrled != 1){
                     //Play & stop BGM
                     try {
-                        if (bgmStop == 1 || read.contains("bgmstop") || read.contains("bgm ")){
+                        if (bgmStop == 1 || read.contains("bgmstop")){
                             bgm.stop();
                             bgmStop = 0;
                         }
